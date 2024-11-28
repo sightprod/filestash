@@ -1,21 +1,21 @@
 diff --git a/public/assets/pages/filespage/thing.js b/public/assets/pages/filespage/thing.js
-index 386c2375..fc70bc2b 100644
+index 386c2375..d28a2b03 100644
 --- a/public/assets/pages/filespage/thing.js
 +++ b/public/assets/pages/filespage/thing.js
 @@ -35,6 +35,20 @@ export function init() {
      };
  }
  
-+window.onThingClick = function(e, self) {
++window.onThingClick = async function(e, self) {
 +    e.preventDefault(); e.stopPropagation();
 +    const path = self.parentElement.getAttribute("data-path");
 +
-+    const region = "eu-west-1";
-+    const sPath = path.replace(new RegExp("^/"), "").split("/");
-+    const bucket = sPath[0];
-+    const key = "/" + sPath.slice(1).map((chunk) => encodeURIComponent(chunk).replaceAll("%20", "+")).join("/");
-+    const url = `https://${bucket}.s3.${region}.amazonaws.com${key}`;
++    const resp = await fetch(`/api/s3link?path=${encodeURIComponent(path)}`, {
++        credentials: "include",
++    });
++    if (resp.status !== 200) return;
 +
++    const url = await resp.text();
 +    navigator.clipboard.writeText(url);
 +    alert(url);
 +}
